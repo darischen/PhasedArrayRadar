@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/CMakeFiles/bootloader"
+			"file" : "/home/darischen/PhasedArrayRadar/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/CMakeFiles/bootloader.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "C:/Users/daris/Desktop/School/HB100/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "/home/darischen/PhasedArrayRadar/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		}
 	],
 	"target" : 

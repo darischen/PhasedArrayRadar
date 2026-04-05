@@ -379,7 +379,7 @@ class RadarEKF:
             self.x[0] = assumed_range * np.cos(angle_rad)
             self.x[1] = assumed_range * np.sin(angle_rad)
             self.x[2] = -speed_mps * np.cos(angle_rad)
-            self.x[3] = speed_mps * np.sin(angle_rad)
+            self.x[3] = -speed_mps * np.sin(angle_rad)
             self.initialized = True
             return
 
@@ -711,6 +711,8 @@ def run_calibration(reader, dsp, num_blocks):
 # --------------- Main ---------------
 
 def main():
+    global MIN_MAGNITUDE
+
     parser = argparse.ArgumentParser(description='HB100 Phased Array Radar Processor')
     parser.add_argument('--port', default='/dev/ttyACM0',
                         help='Serial port for ESP32-S3')
@@ -732,7 +734,6 @@ def main():
     reader = BlockReader(args.port, args.baud)
     dsp = DSPPipeline(magnitude_threshold=args.threshold)
 
-    global MIN_MAGNITUDE
     MIN_MAGNITUDE = args.threshold
 
     if args.calibrate:

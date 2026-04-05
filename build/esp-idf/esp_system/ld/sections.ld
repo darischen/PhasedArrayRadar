@@ -1,6 +1,6 @@
 /* Automatically generated file; DO NOT EDIT */
 /* Espressif IoT Development Framework Linker Script */
-/* Generated from: C:\Users\daris\Desktop\School\HB100\build\esp-idf\esp_system\ld\sections.ld.in */
+/* Generated from: /home/darischen/PhasedArrayRadar/build/esp-idf/esp_system/ld/sections.ld.in */
 
 /*
  * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
@@ -13,11 +13,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 /*
-
  * Automatically generated file. DO NOT EDIT.
-
  * Espressif IoT Development Framework (ESP-IDF) 6.0.0 Configuration Header
-
  */
        
 /* List of deprecated options */
