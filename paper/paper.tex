@@ -499,14 +499,13 @@ limit of a 2-element subarray.}
 \label{fig:angle_error}
 \end{figure}
 
-The angle estimation error decreases as SNR increases for both algorithms. MUSIC exhibits near-optimal behavior,
-with RMS error approaching the Cramér-Rao bound (predicted $\sim$1.0° at 20~dB SNR). The monopulse error floor
-at high SNR ($\sim$1.5°) reflects its fundamental resolution limit; it cannot improve beyond this threshold
-due to the nonlinear amplitude-to-angle mapping and the 2-element subarray beamwidth.
+The angle estimation error decreases as SNR increases for both algorithms. MUSIC exhibits superior performance,
+with error monotonically decreasing as SNR improves (approaching the Cramér-Rao bound at high SNR). The monopulse
+error exhibits an error floor at high SNR that reflects its fundamental resolution limit; it cannot improve beyond this
+threshold due to the nonlinear amplitude-to-angle mapping and the 2-element subarray beamwidth.
 
-At 15~dB SNR (a realistic operating point for weak targets), MUSIC achieves 2.5--3.0° RMS error,
-while monopulse achieves 4.0--4.5° error. This $\sim$33\% advantage of MUSIC motivates its use
-in angle-critical applications, despite its higher computational cost.
+At practical operating SNR levels (10--20~dB), MUSIC consistently outperforms monopulse by 20--40\% RMS error reduction.
+This advantage motivates MUSIC's use in angle-critical applications, despite its higher computational cost.
 
 \subsubsection{Figure 2: Baseline Algorithm Comparison}
 
@@ -520,17 +519,13 @@ at low SNR (40--50\% at 10~dB) and remains substantial at high SNR (20--25\% at 
 \label{fig:baseline_comparison}
 \end{figure}
 
-The comparison table quantifies the performance gap. At 15~dB SNR:
-\begin{itemize}
-\item \textbf{MUSIC:} RMS error $\approx 2.8°$, mean error $\approx 0.15°$, std dev $\approx 2.8°$
-\item \textbf{Monopulse:} RMS error $\approx 4.2°$, mean error $\approx -0.5°$, std dev $\approx 4.1°$
-\item \textbf{Improvement:} MUSIC achieves $\sim$33\% lower RMS error
-\end{itemize}
+The comparison table (Figure 2) quantifies the performance gap across three representative SNR levels (10, 15, 20~dB).
+MUSIC consistently delivers lower RMS error and tighter standard deviation than monopulse. The improvement ranges from
+20--30\% at high SNR (20~dB) to 40--50\% at low SNR (10~dB), demonstrating MUSIC's robustness to noise.
 
-The mean error (bias) is near zero for MUSIC, indicating unbiased estimation. Monopulse exhibits
-small bias ($\pm 0.5°$) due to nonlinearity in the amplitude-ratio-to-angle relationship.
-The monopulse bias can be corrected via empirical calibration curves; however, sensitivity to
-antenna gain imbalances remains a practical limitation.
+Mean error (bias) is near zero for MUSIC, indicating unbiased estimation. Monopulse exhibits small bias due to
+nonlinearity in the amplitude-ratio-to-angle relationship. The monopulse bias can be partially corrected via
+empirical calibration curves; however, sensitivity to antenna gain imbalances remains an inherent limitation.
 
 \subsubsection{Oscillator Drift Robustness}
 
@@ -545,9 +540,9 @@ effectively mitigates drift by averaging out slow phase fluctuations across the 
 \end{figure}
 
 Oscillator phase drift is the primary non-ideality in the HB100 system. Simulations confirm that forward-backward
-averaging significantly improves robustness. At 0.1~Hz drift (typical operating condition), angle error increases
-by only $\sim$4\%, demonstrating that the averaging technique is effective. At stronger drift (0.5~Hz, 50$\times$ worse),
-error increases by $\sim$220\%, but remains usable for real applications.
+averaging significantly improves robustness. At nominal drift rates (0.1~Hz), the averaging technique effectively
+mitigates phase decorrelation. At stronger drift conditions (0.5~Hz or higher), error increases significantly but remains
+within acceptable bounds for presence detection and coarse localization applications.
 
 \subsubsection{Array Geometry Sensitivity}
 
@@ -562,9 +557,10 @@ MUSIC error below 2.0°, demonstrating that sub-mm precision is not required for
 \end{figure}
 
 Element spacing errors directly degrade the steering vector accuracy, which is critical for MUSIC eigendecomposition.
-A systematic spacing error of 2~mm (typical of 3D-printed mounting) increases angle error by $\sim$60\%, from 1.2° to 1.9°.
-This is still acceptable for most applications. To maintain error below 2.5°, spacing errors should be kept below 3~mm.
-Monopulse exhibits similar sensitivity; however, it can be empirically recalibrated per subarray.
+Simulations show that mechanical precision of $\pm 2$~mm (typical of careful 3D-printed or machined mounting) introduces
+manageable degradation. Tighter tolerances ($\pm 1$~mm) provide incremental benefit, while looser tolerances ($\geq 5$~mm)
+significantly impact performance. Monopulse exhibits similar sensitivity to spacing errors; however, it can be empirically
+recalibrated on a per-subarray basis.
 
 \subsubsection{Practical Operating Recommendations}
 
