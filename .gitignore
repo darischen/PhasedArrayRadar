@@ -30,3 +30,4 @@ sdkconfig.old
 # OS
 .DS_Store
 Thumbs.db
+docs/
