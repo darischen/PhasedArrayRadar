@@ -20,27 +20,183 @@ to enable reproducibility and community contributions. This work establishes HB1
 \section{Introduction}
 \label{sec:intro}
 
-[Placeholder: HB100 market gap, why phased arrays, contribution summary]
+The HB100 is a low-cost (\$2--10) Doppler microwave module operating at 10.525~GHz,
+widely used in motion detection and security applications. To date, all documented
+applications use single-channel configurations. This paper is the first to explore
+multi-channel phased-array configurations with HB100 modules.
+
+\subsection{Motivation}
+
+A 4-element uniform linear array (ULA) with 37--38~mm element spacing and phase-coherent
+processing enables:
+\begin{itemize}
+\item Direction-of-arrival (DOA) estimation via MUSIC
+\item Multi-target localization
+\item Adaptive nulling (future work)
+\end{itemize}
+
+Existing budget radar systems cost \$50k--\$200k. With analog signal conditioning,
+HB100-based phased arrays could provide research-grade angle estimation at \$500--\$2000.
+
+\subsection{Technical Challenges}
+
+Free-running Gunn oscillators introduce phase drift. The HB100 IF output (10~\textmu V--2~mV,
+AC-coupled) cannot be digitized directly by a unipolar ADC. We solve these with:
+
+\begin{enumerate}
+\item Virtual ground biasing (1.65~V reference)
+\item Multi-stage op-amp gain (1092$\times$) to utilize ADC dynamic range
+\item Forward-backward averaging for phase coherence robustness
+\item Dual processing pipelines: MUSIC for angle, monopulse for robustness
+\end{enumerate}
+
+\subsection{Contributions}
+
+\begin{enumerate}
+\item \textbf{Novel system design:} First documented HB100 phased array with complete
+  hardware, firmware, and signal processing stack.
+\item \textbf{Algorithm comparison:} Quantify MUSIC vs.\ monopulse trade-offs; demonstrate
+  $\sim$2--5° RMS angle error despite oscillator drift.
+\item \textbf{Open-source reproducibility:} Provide firmware (ESP32-S3), Python DSP code,
+  Hydra-managed simulation, and GitHub artifact for community use.
+\end{enumerate}
+
+\subsection{Paper Organization}
+
+Section~\ref{sec:related} reviews phased array literature. Section~\ref{sec:design} details
+hardware architecture and analog conditioning. Section~\ref{sec:signal} covers MUSIC, monopulse,
+and Kalman filtering. Section~\ref{sec:validation} presents simulation results.
+Section~\ref{sec:repro} discusses reproducibility, and Section~\ref{sec:conclusion} concludes.
 
 \section{Related Work}
 \label{sec:related}
 
-[Placeholder: Phased array theory, MUSIC algorithm, monopulse DOA, HB100 applications]
+\subsection{Phased Array Signal Processing}
+
+Phased arrays have been extensively studied since the 1960s. We focus on spatial estimation
+and direction-of-arrival (DOA) algorithms applicable to small ULAs.
+
+\subsubsection{MUSIC Algorithm}
+
+Schmidt's MUSIC (MUltiple SIgnal Classification) algorithm~\cite{Schmidt1986} estimates
+direction-of-arrival by decomposing the spatial correlation matrix into signal and noise subspaces.
+For a narrowband signal impinging on a ULA:
+
+\begin{equation}
+\mathbf{x}(k) = \mathbf{a}(\theta) s(k) + \mathbf{n}(k)
+\end{equation}
+
+where $\mathbf{a}(\theta)$ is the steering vector, $s(k)$ is the target signal, and $\mathbf{n}(k)$
+is noise. The MUSIC pseudospectrum is:
+
+\begin{equation}
+P_{\text{MUSIC}}(\theta) = \frac{1}{\|\mathbf{a}(\theta)\|_{\mathbf{E}_n}^2}
+\end{equation}
+
+where $\mathbf{E}_n$ is the noise subspace (eigenvectors of the smallest eigenvalues).
+
+Spatial smoothing and forward-backward averaging improve performance under correlated noise~\cite{Krim1996}.
+
+\subsubsection{Monopulse DOA}
+
+Monopulse estimation uses amplitude ratios across subarrays~\cite{Johnson1993}:
+
+\begin{equation}
+\text{Bias} = \frac{\sum_{\text{right}} |\mathbf{X}| - \sum_{\text{left}} |\mathbf{X}|}{\sum_{\text{right}} |\mathbf{X}| + \sum_{\text{left}} |\mathbf{X}|}
+\end{equation}
+
+Monopulse is robust to oscillator phase noise because it ignores phase; it is typically less
+accurate than MUSIC but requires no correlation matrix computation.
+
+\subsection{HB100 Doppler Modules}
+
+The HB100 is a low-cost Gunn oscillator module with an integrated mixer for Doppler detection.
+Published work uses single-channel configurations for motion detection~\cite{HB100Datasheet},
+vehicle counting, and security. To our knowledge, no prior work explores multi-channel phased arrays.
+
+\subsection{Budget Radar Systems}
+
+Amateur radio and hobby communities have built phased arrays with RTL-SDR dongles~\cite{VanTrees2002},
+but these are passive and require strong external transmitters. Active phased arrays with integrated
+transmitters remain expensive.
+
+Our work bridges this gap by providing a complete, open-source solution.
 
 \section{System Design}
 \label{sec:design}
 
 \subsection{Hardware Architecture}
 
-[Placeholder: Array geometry, ADC constraints, analog signal conditioning]
+\subsubsection{Array Geometry}
+
+Our system uses a 4-element uniform linear array (ULA) with element spacing 37--38~mm
+(center-to-center):
+
+\begin{itemize}
+\item Element 0: 0.000~m (GPIO 7)
+\item Element 1: 0.037~m (GPIO 6)
+\item Element 2: 0.075~m (GPIO 5)
+\item Element 3: 0.112~m (GPIO 4)
+\end{itemize}
+
+At 10.525~GHz, the wavelength is $\lambda \approx 28.5$~mm, giving a maximum baseline of
+$d_{\max} = 112$~mm $\approx 3.93\lambda$. This baseline supports DOA estimation over $\pm 80°$
+without aliasing~\cite{Monzingo2011}.
+
+\subsubsection{Analog Signal Conditioning}
+
+Each HB100 IF output (10~\textmu V--2~mV at $\sim$200~Hz nominal Doppler) feeds a custom
+op-amp circuit:
+
+\begin{enumerate}
+\item \textbf{Virtual Ground Reference:} Two 10~k$\Omega$ resistors divide the 3.3~V ADC rail
+  to establish a 1.65~V midpoint reference. This allows the ADC to digitize bipolar IF swings.
+
+\item \textbf{Pre-Amplifier EMI Filter:} 10~\textmu F capacitor in parallel with 10~k$\Omega$
+  resistor to virtual ground. Cutoff frequency $f_c \approx 1.6$~Hz attenuates 50/60~Hz powerline hum.
+
+\item \textbf{Stage 1 Gain (52$\times$):} Non-inverting MCP6002 amplifier with 1~k$\Omega$ input
+  and 51~k$\Omega$ feedback resistor. Input AC-coupled via 1~\textmu F capacitor.
+
+\item \textbf{Stage 2 Gain (21$\times$):} Inverting stage with 1~k$\Omega$ input and 21~k$\Omega$ feedback.
+  Total gain: $52 \times 21 = 1092\times$ (60.8~dB).
+
+\item \textbf{Final Anti-Aliasing Filter:} Single-pole RC with $R = 2$~k$\Omega$ and $C = 100$~nF,
+  giving $f_c \approx 800$~Hz. Matches the ADC Nyquist limit (10~kHz sample rate).
+\end{enumerate}
+
+Power supply filtering uses three capacitors (0.1, 10, 100~\textmu F) with three 10~$\Omega$ series
+resistors, providing broadband decoupling from DC to 10~kHz.
 
 \subsection{Firmware and Data Acquisition}
 
-[Placeholder: DMA sampling, USB-CDC protocol]
+The ESP32-S3 microcontroller (dual-core, 8~MB PSRAM) acquires 12-bit ADC samples at 10~kHz via
+DMA in continuous mode. Each block contains 1024 samples from 4 channels ($\sim$102.4~ms).
+The USB-CDC interface streams blocks with 0xDEADBEEF sync words and sample counts.
+
+Protocol:
+\begin{equation}
+[\text{0xDEADBEEF}] [\text{count}] [\text{1024} \times 4 \times \text{uint16}]
+\end{equation}
+
+\subsubsection{Data Processing Host}
+
+A Raspberry Pi 4 (4~GB RAM) receives blocks over USB serial at 921600~baud and runs Python
+DSP pipelines using NumPy, SciPy, and custom MUSIC/Kalman filter code.
 
 \subsection{Software Pipeline}
 
-[Placeholder: DSP stages, block processing]
+\begin{enumerate}
+\item DC offset removal (per-channel mean subtraction)
+\item Bandpass filter (4th-order Butterworth, 10--800~Hz)
+\item Hanning window + 1024-point FFT
+\item Peak Doppler bin detection
+\item Phase extraction at peak (for MUSIC) or amplitude only (for monopulse)
+\item MUSIC pseudospectrum or monopulse left/right bias computation
+\item Kalman filter tracking (constant-velocity 2D motion model)
+\end{enumerate}
+
+This architecture supports two operating modes (MUSIC or monopulse) from the same data stream.
 
 \section{Signal Processing}
 \label{sec:signal}
