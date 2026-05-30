@@ -30,4 +30,8 @@ sdkconfig.old
 # OS
 .DS_Store
 Thumbs.db
+
+# Docs (except design specs)
 docs/
+!docs/superpowers/
+!docs/superpowers/specs/
