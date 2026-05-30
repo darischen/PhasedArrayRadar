@@ -1,0 +1,13 @@
+# Alternative Figure 4: Sensitivity to element spacing errors
+
+defaults:
+  - default
+
+simulation:
+  target_angles: [0, 30, -30]
+  snr_db: [15]
+  num_trials: 500
+  oscillator_drift_hz: 0.1
+  element_spacing_error_mm: [-2, -1, 0, 1, 2]
+
+experiment_name: "figure_4_sensitivity_spacing"
