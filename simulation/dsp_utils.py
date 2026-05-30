@@ -21,7 +21,7 @@ class DSPPipeline:
         self.sample_rate = sample_rate
         self.fft_size = fft_size
         self.window = np.hanning(fft_size)
-        self.freqs = np.fft.rfftfreq(fft_size, d=1.0 / sample_rate)
+        self.freqs = np.fft.fftfreq(fft_size, d=1.0 / sample_rate)
 
         # Bandpass filter: 10–800 Hz
         self.sos = butter(
@@ -59,7 +59,7 @@ class DSPPipeline:
 
     def compute_fft(self, signal):
         """
-        Apply Hanning window and compute real FFT.
+        Apply Hanning window and compute FFT.
 
         Args:
             signal (np.ndarray): Shape (num_samples, num_channels)
@@ -68,7 +68,11 @@ class DSPPipeline:
             np.ndarray: Complex FFT output, shape (num_freq_bins, num_channels)
         """
         windowed = signal * self.window[:, np.newaxis]
-        return np.fft.rfft(windowed, axis=0)
+        # Use full FFT for complex signals, rfft for real signals
+        if np.iscomplexobj(windowed):
+            return np.fft.fft(windowed, axis=0)
+        else:
+            return np.fft.rfft(windowed, axis=0)
 
     def find_doppler_peak(self, fft_output):
         """
