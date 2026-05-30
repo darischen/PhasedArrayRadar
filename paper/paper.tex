@@ -1,0 +1,99 @@
+\input{preamble.tex}
+
+\title{HB100 Phased Array Doppler Radar: Custom Analog Signal Conditioning for Budget-Friendly Multi-Channel Beamforming}
+\author{Anonymous}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper presents the first documented phased-array radar system using HB100 Doppler microwave modules (10.525 GHz).
+We address the challenge of handling free-running Gunn oscillators and bipolar IF outputs through custom analog signal conditioning
+(virtual ground biasing, multi-stage op-amp amplification). Our dual processing pipelines --- MUSIC-based angle-of-arrival estimation
+and amplitude-only monopulse --- demonstrate robust target detection and localization despite oscillator drift.
+We validate performance through simulation and provide open-source hardware, firmware, and signal processing code
+to enable reproducibility and community contributions. This work establishes HB100 viability for low-cost phased array research.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+[Placeholder: HB100 market gap, why phased arrays, contribution summary]
+
+\section{Related Work}
+\label{sec:related}
+
+[Placeholder: Phased array theory, MUSIC algorithm, monopulse DOA, HB100 applications]
+
+\section{System Design}
+\label{sec:design}
+
+\subsection{Hardware Architecture}
+
+[Placeholder: Array geometry, ADC constraints, analog signal conditioning]
+
+\subsection{Firmware and Data Acquisition}
+
+[Placeholder: DMA sampling, USB-CDC protocol]
+
+\subsection{Software Pipeline}
+
+[Placeholder: DSP stages, block processing]
+
+\section{Signal Processing}
+\label{sec:signal}
+
+\subsection{MUSIC Algorithm}
+
+[Placeholder: Steering vectors, eigendecomposition, pseudospectrum]
+
+\subsection{Monopulse Baseline}
+
+[Placeholder: Amplitude-based DOA, why simpler but weaker]
+
+\subsection{Extended Kalman Filter}
+
+[Placeholder: State model, measurement updates]
+
+\subsection{Forward-Backward Averaging}
+
+[Placeholder: Addressing free-running oscillators]
+
+\section{Simulation \& Validation}
+\label{sec:validation}
+
+\subsection{Synthetic Signal Generation}
+
+[Placeholder: Signal model, noise]
+
+\subsection{Metrics and Methodology}
+
+[Placeholder: RMS error, detection probability, Monte Carlo]
+
+\subsection{Results}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/angle_error_vs_snr.pdf}
+\caption{Angle estimation RMS error vs SNR. MUSIC outperforms monopulse across all SNR levels.}
+\label{fig:angle_error}
+\end{figure}
+
+[Placeholder: Additional figures and discussion]
+
+\section{Reproducibility}
+\label{sec:repro}
+
+[Placeholder: Code structure, Hydra configs, reproduction commands]
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+[Placeholder: Summary, future work, hardware validation]
+
+\bibliographystyle{abbrvnat}
+\bibliography{paper}
+
+\end{document}
