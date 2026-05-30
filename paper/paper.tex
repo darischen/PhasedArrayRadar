@@ -203,19 +203,192 @@ This architecture supports two operating modes (MUSIC or monopulse) from the sam
 
 \subsection{MUSIC Algorithm}
 
-[Placeholder: Steering vectors, eigendecomposition, pseudospectrum]
+\subsubsection{Steering Vector and Correlation Matrix}
+
+The MUSIC algorithm exploits the structure of the spatial correlation matrix to separate
+signal and noise subspaces. For a narrowband signal at direction $\theta$ impinging on a
+uniform linear array (ULA) with $M$ elements, the steering vector is:
+
+\begin{equation}
+\mathbf{a}(\theta) = [1, e^{j 2\pi d \sin(\theta) / \lambda}, e^{j 4\pi d \sin(\theta) / \lambda}, \ldots, e^{j 2\pi (M-1) d \sin(\theta) / \lambda}]^T
+\label{eq:steering}
+\end{equation}
+
+where $d$ is the element spacing, $\lambda$ is the wavelength, and $\theta$ is the angle
+of arrival. For our 4-element array at 10.525~GHz with $d = 37.5$~mm and $\lambda = 28.5$~mm,
+the array gain is maximized at $\sin(\theta) = 0$ (broadside) and rolls off toward the edges
+of the $\pm 80°$ unambiguous FOV.
+
+The spatial correlation matrix $\mathbf{R}$ is computed over $K$ received snapshots:
+
+\begin{equation}
+\mathbf{R} = \frac{1}{K} \sum_{k=1}^{K} \mathbf{x}(k) \mathbf{x}^H(k)
+\label{eq:corr_matrix}
+\end{equation}
+
+where $\mathbf{x}(k) = \mathbf{a}(\theta) s(k) + \mathbf{n}(k)$ is the received signal at time $k$,
+$s(k)$ is the target signal, and $\mathbf{n}(k)$ is additive white Gaussian noise.
+
+\subsubsection{Eigendecomposition and Pseudospectrum}
+
+The correlation matrix is decomposed via eigendecomposition:
+
+\begin{equation}
+\mathbf{R} = \mathbf{E}_s \boldsymbol{\Lambda}_s \mathbf{E}_s^H + \mathbf{E}_n \boldsymbol{\Lambda}_n \mathbf{E}_n^H
+\label{eq:eigendecomp}
+\end{equation}
+
+where $\mathbf{E}_s$ and $\mathbf{E}_n$ are the signal and noise subspace eigenvectors, respectively,
+and $\boldsymbol{\Lambda}_s$, $\boldsymbol{\Lambda}_n$ are the corresponding eigenvalues. For one narrowband
+signal in white noise, the noise subspace is spanned by the $M-1$ eigenvectors corresponding to the
+smallest eigenvalues.
+
+The MUSIC pseudospectrum is then:
+
+\begin{equation}
+P_{\text{MUSIC}}(\theta) = \frac{1}{\mathbf{a}^H(\theta) \mathbf{E}_n \mathbf{E}_n^H \mathbf{a}(\theta)}
+\label{eq:music_pseudo}
+\end{equation}
+
+Peaks in $P_{\text{MUSIC}}(\theta)$ identify the signal directions. The algorithm achieves near-optimal
+performance (close to Cramér-Rao bound) even at low SNR, provided sufficient snapshots are available~\cite{Schmidt1986}.
+
+In practice, we search $\theta$ over the unambiguous field-of-view ($\pm 80°$) and locate the global maximum.
+For multiple signals, we identify multiple peaks; however, our current hardware setup focuses on single-target
+scenarios.
 
 \subsection{Monopulse Baseline}
 
-[Placeholder: Amplitude-based DOA, why simpler but weaker]
+\subsubsection{Amplitude-Only DOA Estimation}
+
+Monopulse is an amplitude-based direction-finding technique that divides the array into
+left and right subarrays and compares the peak amplitudes:
+
+\begin{equation}
+\text{DOA\_bias} = \frac{\sum_{\text{right}} |A_{\text{right}}| - \sum_{\text{left}} |A_{\text{left}}|}{\sum_{\text{right}} |A_{\text{right}}| + \sum_{\text{left}} |A_{\text{left}}|}
+\label{eq:monopulse}
+\end{equation}
+
+where $A_{\text{right}}$ and $A_{\text{left}}$ are the amplitudes (absolute values) at the peak Doppler bin
+from the right and left subarrays, respectively. This bias is converted to an angle estimate via
+empirical calibration or a directional response curve.
+
+\subsubsection{Advantages and Trade-offs}
+
+Monopulse offers three key advantages:
+
+\begin{enumerate}
+\item \textbf{Oscillator phase noise robustness:} Uses only amplitude, ignoring phase noise from free-running Gunn oscillators.
+\item \textbf{Computational efficiency:} Requires only peak detection and amplitude summation (no eigendecomposition).
+\item \textbf{Low latency:} Can provide DOA estimates within a single FFT frame.
+\end{enumerate}
+
+However, monopulse has fundamental limitations:
+
+\begin{enumerate}
+\item \textbf{Lower resolution:} Angular accuracy is limited by the half-power beamwidth of the subarrays,
+  typically 20--30° for a 2-element subarray.
+\item \textbf{Nonlinear response:} The amplitude ratio is a nonlinear function of angle; calibration is required.
+\item \textbf{Sensitivity to imbalance:} Amplitude mismatches between subarrays (gain differences, insertion loss)
+  directly bias the estimate.
+\end{enumerate}
+
+Despite these limitations, monopulse serves as a robust fallback when MUSIC fails under strong oscillator drift
+or when real-time performance is critical.
 
 \subsection{Extended Kalman Filter}
 
-[Placeholder: State model, measurement updates]
+\subsubsection{State Model}
+
+We employ a constant-velocity motion model in Cartesian coordinates. The state vector is:
+
+\begin{equation}
+\mathbf{x}_k = [x_k, y_k, v_{x,k}, v_{y,k}]^T
+\label{eq:state_vector}
+\end{equation}
+
+where $(x_k, y_k)$ is the target position and $(v_{x,k}, v_{y,k})$ is the velocity, all at time step $k$.
+
+The state transition model assumes constant velocity over the prediction interval $\Delta t$:
+
+\begin{equation}
+\mathbf{x}_{k+1} = \mathbf{F} \mathbf{x}_k + \mathbf{w}_k
+\label{eq:state_transition}
+\end{equation}
+
+where the state transition matrix is:
+
+\begin{equation}
+\mathbf{F} = \begin{bmatrix} 1 & 0 & \Delta t & 0 \\ 0 & 1 & 0 & \Delta t \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}
+\label{eq:transition_matrix}
+\end{equation}
+
+and $\mathbf{w}_k \sim \mathcal{N}(0, \mathbf{Q})$ is process noise representing model uncertainty.
+
+\subsubsection{Measurement Model and Update Step}
+
+The measurement is the estimated angle $\hat{\theta}_k$ from either MUSIC or monopulse. We convert this to
+a position measurement via a range estimate (typically obtained from Doppler frequency or, if available, from
+an auxiliary range sensor):
+
+\begin{equation}
+\begin{bmatrix} \hat{x}_k \\ \hat{y}_k \end{bmatrix} = r \begin{bmatrix} \sin(\hat{\theta}_k) \\ \cos(\hat{\theta}_k) \end{bmatrix} + \mathbf{v}_k
+\label{eq:measurement}
+\end{equation}
+
+where $r$ is the estimated range and $\mathbf{v}_k \sim \mathcal{N}(0, \mathbf{R})$ is measurement noise.
+
+The measurement model is nonlinear due to the trigonometric conversion; hence we apply the Extended Kalman Filter (EKF).
+The measurement Jacobian with respect to the state is:
+
+\begin{equation}
+\mathbf{H} = \frac{\partial \mathbf{h}(\mathbf{x})}{\partial \mathbf{x}} = \begin{bmatrix} r \cos(\hat{\theta}_k) & 0 & \sin(\hat{\theta}_k) & 0 \\ -r \sin(\hat{\theta}_k) & 0 & 0 & \cos(\hat{\theta}_k) \end{bmatrix}
+\label{eq:measurement_jacobian}
+\end{equation}
+
+At each step, the EKF performs prediction ($\mathbf{x}_{k+1|k}$) and update ($\mathbf{x}_{k+1|k+1}$) with adaptive
+noise covariances. We adaptively scale $\mathbf{R}$ based on the innovation (measurement residual) to handle
+oscillator-induced uncertainty.
 
 \subsection{Forward-Backward Averaging}
 
-[Placeholder: Addressing free-running oscillators]
+\subsubsection{Motivation: Free-Running Oscillator Phase Drift}
+
+The free-running Gunn oscillator exhibits slow phase drift over time scales of 10--100~ms. This causes the
+spatial correlation matrix to become asymmetric and violates the assumption of stationarity. Forward-backward
+averaging (also called conjugate symmetry averaging) exploits the real-valued nature of narrowband Doppler signals
+to improve robustness.
+
+\subsubsection{Forward-Backward Averaging Formula}
+
+For a real-valued signal, the correlation matrix exhibits conjugate symmetry in a reference frame. Forward-backward
+averaging computes:
+
+\begin{equation}
+\mathbf{R}_{\text{fb}} = \frac{1}{2} \left( \mathbf{R} + \mathbf{J} \mathbf{R}^* \mathbf{J}^T \right)
+\label{eq:fb_averaging}
+\end{equation}
+
+where $\mathbf{J}$ is the exchange (reversal) matrix:
+
+\begin{equation}
+\mathbf{J} = \begin{bmatrix} 0 & 0 & 0 & 1 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 0 \\ 1 & 0 & 0 & 0 \end{bmatrix}
+\label{eq:exchange_matrix}
+\end{equation}
+
+This operation enforces approximate conjugate symmetry and improves the condition number of $\mathbf{R}_{\text{fb}}$,
+making the subsequent eigendecomposition more numerically stable.
+
+\subsubsection{Benefit for Oscillator Drift}
+
+By averaging forward and backward-reversed snapshots, we average out slow oscillator phase fluctuations that occur
+between early and later samples. This reduces the effective oscillator drift over the snapshot window and improves
+spatial coherence for MUSIC processing. Empirically, forward-backward averaging reduces MUSIC pseudospectrum
+leakage and sharpens peaks even under 10--30~mrad/s phase drift rates~\cite{VanTrees2002}.
+
+In our implementation, we apply forward-backward averaging to the correlation matrix before eigendecomposition,
+recomputing the noise subspace with the averaged matrix. This is particularly effective for integration windows
+of 100--500~ms, where oscillator drift is moderate but noticeable.
 
 \section{Simulation \& Validation}
 \label{sec:validation}
