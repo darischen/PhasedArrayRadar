@@ -1,0 +1,13 @@
+# Figure 2: Baseline comparison table (MUSIC vs monopulse)
+
+defaults:
+  - default
+
+simulation:
+  target_angles: [-60, -30, 0, 30, 60]
+  snr_db: [10, 15, 20]
+  num_trials: 1500
+  oscillator_drift_hz: 0.1
+  element_spacing_error_mm: 0
+
+experiment_name: "figure_2_baseline_comparison"

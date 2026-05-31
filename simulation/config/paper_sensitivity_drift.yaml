@@ -1,0 +1,13 @@
+# Figure 4: Sensitivity to oscillator drift
+
+defaults:
+  - default
+
+simulation:
+  target_angles: [0, 30, -30]
+  snr_db: [15]
+  num_trials: 500
+  oscillator_drift_hz: [0, 0.1, 0.5, 1.0, 2.0]
+  element_spacing_error_mm: 0
+
+experiment_name: "figure_4_sensitivity_drift"

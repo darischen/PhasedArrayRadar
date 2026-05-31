@@ -1,0 +1,62 @@
+% Preamble: common macros and styling for HB100 paper
+% (Do NOT include \documentclass or \begin{document} — this is included via \input{})
+
+% Fonts and encoding
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Margins
+\usepackage[margin=1in]{geometry}
+
+% Line spacing
+\usepackage{setspace}
+\onehalfspacing
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% Figures and tables
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[skip=10pt,labelfont=bf]{caption}
+
+% Color
+\usepackage{xcolor}
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{medblue}{RGB}{0,102,204}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    citecolor=darkblue,
+    urlcolor=medblue,
+    pdftitle={HB100 Phased Array Radar},
+    pdfauthor={Author}
+}
+
+% Bibliography
+\usepackage{natbib}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries\color{darkblue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+% Code listings (for algorithm pseudocode)
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{lightgray}
+}
+
+% Spacing tweaks
+\setlength{\parindent}{0.5cm}
+\setlength{\parskip}{0.3cm}

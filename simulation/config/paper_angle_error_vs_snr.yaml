@@ -1,0 +1,16 @@
+# Figure 1: Angle estimation error vs SNR
+
+defaults:
+  - default
+
+simulation:
+  target_angles: [-80, -60, -40, -20, 0, 20, 40, 60, 80]
+  snr_db: [0, 5, 10, 15, 20, 25, 30]
+  num_trials: 1000
+  oscillator_drift_hz: 0.1
+  element_spacing_error_mm: 0
+
+music:
+  smoothing_bins: 5
+
+experiment_name: "figure_1_angle_error_vs_snr"
